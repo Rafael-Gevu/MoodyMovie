@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components'
 import { AppRoutes } from "./pages/routes"
-
+import { LanguageProvider } from './contexts/language-context'
 
 
 
@@ -11,7 +11,9 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <AppRoutes />
+      <LanguageProvider>
+        <AppRoutes />
+      </LanguageProvider>
     </>
   )
 }
@@ -31,4 +33,5 @@ const GlobalStyle = createGlobalStyle`
     background: linear-gradient(135deg, black 30%, #800000);
   }
 `
+
 export default App

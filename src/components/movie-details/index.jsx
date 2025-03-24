@@ -8,96 +8,107 @@ import styled from "styled-components";
 
 
 const MovieDetails = () => {
-    const [movieInfo, setMovieInfo] = useState({
-        background: null,
-        poster: null,
-        title: '',
-        overview: '',
-        director: [],
-        cast: [],
-        genres: []
-    })
-
+    const [movieInfo, setMovieInfo] = useState([])
+    const [movieGenres, setMovieGenres] = useState([])
+    const [director, setDirector] = useState([])
+    const [cast, setCast] = useState([])
+    const [background, setBackground] = useState(null)
+    const [poster, setPoster] = useState(null)
     const params = useParams()
     useEffect(() => {
         fetchData()
     }, [])
-
     async function fetchData() {
         const movieData = await getMovieInfo(params.id)
+        console.log(movieData)
+        const backgroundData = movieData.backdrop_path
+        const posterData = movieData.poster_path
+        const genresData = movieData.genres
         const directorData = (movieData.credits.crew.filter((person) => { return person.job === "Director" }).map(({ name }) => { return name }))
         const castData = movieData.credits.cast.slice(0, 4)
-        const genresData = movieData.genres
-
-        setMovieInfo({
-            background: `https://image.tmdb.org/t/p/original${movieData?.backdrop_path}`,
-            poster: `https://image.tmdb.org/t/p/original${movieData?.poster_path}`,
-            title: movieData.title,
-
-            overview: movieData.overview,
-            director: directorData,
-            cast: castData,
-            genres: genresData,
-        })
-
+        setMovieInfo(movieData)
+        setBackground(backgroundData)
+        setPoster(posterData)
+        setMovieGenres(genresData)
+        setDirector(directorData)
+        setCast(castData)
     }
 
     return (
         <Main>
-            <Overlay> <Background src={movieInfo.background} alt="background-image" /></Overlay>
-            <Link to={'/'}><Logo>MoodyMovie</Logo></Link>
-            <Data>
-                <div>
-                    {movieInfo.poster != null &&
-                        <MoviePoster src={movieInfo.poster} alt="movie-poster" />
-                    }
-                    {movieInfo.poster = null &&
-                        <MoviePoster src="../src/images/no-poster.png" alt="no-movie-poster" />
-                    }
-                </div>
-                <InfoSection>
-                    <h1>{movieInfo.title}</h1>
-                    <GenresSection>
-                        {movieInfo.genres.length === 0 && <Genre>No movie genre found</Genre>}
-                        {movieInfo.genres.map((genre, index) => {
-                            return (
-                                <div key={index}>
-                                    <Genre>{genre.name}</Genre>
-                                </div>
-                            )
-                        })}
-                    </GenresSection>
-                    {movieInfo.overview === '' && <p>No overview found</p>}
-                    <p>{movieInfo.overview}</p>
+            <>
+                <Overlay>
+                    <Background src={`https://image.tmdb.org/t/p/original${background}`} alt="background-image" />
+                </Overlay>
 
-                    <Credits>
-                        <div>
-                            <p>Directed by:</p>
-                            {movieInfo.director.length === 0 && <p>No director found</p>}
-                            <div>{movieInfo.director.map((director, index) => {
+                <Link to={'/'}><Logo>MoodyMovie</Logo></Link>
+
+                <Data>
+                    <div>
+
+                        {poster !== null &&
+                            <MoviePoster src={`https://image.tmdb.org/t/p/original${poster}`} alt="movie-poster" />
+                        }
+
+                        {poster === null &&
+                            <MoviePoster src="../src/images/no-poster.png" alt="no-movie-poster" />
+                        }
+
+                    </div>
+                    <InfoSection>
+
+                        <h1>{movieInfo.title}</h1>
+
+                        <GenresSection>
+
+                            {movieGenres.length === 0 && <Genre>No movie genres found</Genre>}
+
+                            {movieGenres.map((genre, index) => {
                                 return (
                                     <div key={index}>
-                                        <p>{director}</p>
+                                        <Genre>{genre.name}</Genre>
                                     </div>
                                 )
-                            })}</div>
-                        </div>
-                        <div>
-                            <p>Cast:</p>
-                            {movieInfo.cast.length === 0 && <p>No cast found</p>}
-                            <div>{movieInfo.cast.map((actor, index) => {
-                                return (
-                                    <div key={index}>
-                                        <p>{actor.name}</p>
-                                    </div>
-                                )
-                            })}</div>
-                        </div>
+                            })}
 
-                    </Credits>
-                </InfoSection>
-            </Data>
-        </Main >
+                        </GenresSection>
+
+                        {movieInfo.overview === '' && <p>No overview found</p>}
+
+                        <p>{movieInfo.overview}</p>
+
+                        <Credits>
+
+                            <div>
+                                <p>Directed by:</p>
+                                {director.length === 0 && <p>No director found</p>}                            
+                                <div>{director.map((director, index) => {
+                                    return (
+                                        <div key={index}>
+                                            <p>{director}</p>
+                                        </div>
+                                    )
+                                })}</div>
+                            </div>
+
+                            <div>
+                                <p>Cast:</p>
+                                {cast.length === 0 && <p>No cast found</p>}
+                                <div>{cast.map((actor, index) => {
+                                    return (
+                                        <div key={index}>
+                                            <p>{actor.name}</p>
+                                        </div>
+                                    )
+                                })}</div>
+                            </div>
+
+                        </Credits>
+                    </InfoSection>
+                </Data >
+
+            </>
+        </Main>
     )
 }
 
@@ -108,6 +119,9 @@ const Main = styled.main`
     justify-content: center;
     align-items: center;
     height: 100vh;
+    @media (max-width: 762px){
+        flex-direction: column;
+    }
     `
 
 const Overlay = styled.div`
@@ -120,11 +134,14 @@ const Overlay = styled.div`
     background-color: rgba(0,0,0,0.7)
 `
 
-const Background = styled.img`
-    width: 100%;
+const Background = styled.div`
+    background: url(${(props)=>props.src}) center;
+    background-size: cover;
     height: 100%;
+    width: 100%;
     z-index: -1;
     position: relative;
+    } 
 `
 
 const Logo = styled.h1`
@@ -133,8 +150,11 @@ const Logo = styled.h1`
     color: #fff;
     top: 0;
     left :0;
-    
     padding: 3%;
+    @media (max-width: 762px){
+        width: 100%;
+        text-align: center;
+    }
     `
 
 const Data = styled.div`
@@ -144,37 +164,66 @@ const Data = styled.div`
     text-shadow: 1px 1px 1px #000000;
     gap: 100px;
     align-items: center;
+    @media (max-width: 762px){
+        flex-direction: column;
+        top: 100px;
+        gap: 10px;
+        font-size: 14px;
+    }
 `
 
 const MoviePoster = styled.img` 
     width: 400px;
-    border-radius: 10px;   
+    border-radius: 10px;
+    @media (max-width: 762px){
+        width: 200px;
+    }   
 `
 
 const InfoSection = styled.section`
     width: 350px;
-    gap: 30px;
+    display: flex;
+    flex-direction: column;
     font-family: 'Raleway', sans-serif;
+    @media (max-width: 762px){
+        gap: 10px;
+        text-align: center;
+        
+    }
 `
 
 const GenresSection = styled.div`
     display: flex;
     gap: 20px;
     margin: 10px 0px 30px 0px;
+    @media (max-width: 762px){
+        flex-direction: column;
+        align-items: center;
+    }
+    
 `
 
 const Genre = styled.p`
     font-size: 15px;
     padding: 10px;
+
     border-radius: 10px;
     background-color: #1F2122;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     border: none;
+    @media (max-width: 762px){
+        
+        
+    }
 `
 
 const Credits = styled.div`
     margin-top: 60px;
     display: flex;
     justify-content: space-between;
+    @media (max-width: 762px){
+        font-size: 13px;
+        justify-content: space-around;
+        margin: 10px 0px 30px 0px;
+    }
 `
-
