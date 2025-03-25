@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import styled, { keyframes } from "styled-components"
 import { getMoviesByGenre } from "../../services/get-movie-genre"
 import { Cards } from "../cards/cards"
@@ -23,15 +23,24 @@ export const Home = () => {
     const LoadNextPage = async () => {
         {page <= 9 && setPage(page + 1)}
         fetchList()
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        })
     }
 
     const ReturnToPrevPage = async () => {
         {page > 1 && setPage(page - 1)}
         fetchList()
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        })
     }
 
     useEffect(() => {
         fetchList()
+
     }, [selectedMood, language, page])
 
     async function fetchList() {

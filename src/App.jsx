@@ -29,9 +29,7 @@ const GlobalStyle = createGlobalStyle`
     }
   }
   body {
-
     background: linear-gradient(135deg, black 30%, #800000);
   }
 `
-
 export default App
